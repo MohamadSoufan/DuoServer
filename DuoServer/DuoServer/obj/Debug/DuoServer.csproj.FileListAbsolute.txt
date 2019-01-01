@@ -1,0 +1,12 @@
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\bin\Debug\DuoServer.exe.config
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\bin\Debug\DuoServer.exe
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\bin\Debug\DuoServer.pdb
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\obj\Debug\DuoServer.csprojResolveAssemblyReference.cache
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\obj\Debug\DuoServer.exe
+C:\Users\Yaman\AppData\Local\Temporary Projects\DuoServer\obj\Debug\DuoServer.pdb
+D:\DS\DuoServer\DuoServer\bin\Debug\DuoServer.exe.config
+D:\DS\DuoServer\DuoServer\bin\Debug\DuoServer.exe
+D:\DS\DuoServer\DuoServer\bin\Debug\DuoServer.pdb
+D:\DS\DuoServer\DuoServer\obj\Debug\DuoServer.csprojResolveAssemblyReference.cache
+D:\DS\DuoServer\DuoServer\obj\Debug\DuoServer.exe
+D:\DS\DuoServer\DuoServer\obj\Debug\DuoServer.pdb
