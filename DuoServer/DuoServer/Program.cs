@@ -1,158 +1,143 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Sockets;
-using System.Net;
-using System.IO;
-using System.Threading;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace DuoServer
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-
-            string ip;
-            string GetIP()
-            {
-                string strHostName = "";
-                strHostName = System.Net.Dns.GetHostName();
-
-                IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(strHostName);
-
-                IPAddress[] addr = ipEntry.AddressList;
-
-                return addr[addr.Length - 1].ToString();
-
-            }
-
-            string s = "www";
+            const string publicDomain = "www";
 
             Console.Clear();
-            SimpleHTTPServer myServer = new SimpleHTTPServer(s);
-            Console.Title = (GetIP() + ":" + myServer.Port.ToString());
-            Console.WriteLine("Server.Started On: " + GetIP() + ":" + myServer.Port.ToString() + "\n");
-            ip = GetIP() + ":" + myServer.Port.ToString();
+            var httpServer = new SimpleHttpServer(publicDomain);
+            Console.Title = $"{GetIp()}: {httpServer.Port}";
+            Console.WriteLine($"Server started on: {GetIp()} : {httpServer.Port}\n");
         }
 
-        public class SimpleHTTPServer
+        private static string GetIp()
         {
+            var hostName = Dns.GetHostName();
+            var ipEntry = Dns.GetHostEntry(hostName);
+            var addresses = ipEntry.AddressList;
+            return addresses.Last().ToString();
+        }
 
+        public class SimpleHttpServer
+        {
             private readonly string[] _indexFiles = {
-        "index.html",
-        "index.htm",
-        "default.html",
-        "default.htm",
-        "index.php"
-    };
+                "index.html",
+                "index.htm",
+                "default.html",
+                "default.htm",
+                "index.php"
+            };
 
-            private static IDictionary<string, string> _mimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
-        #region extension to MIME type list
-        {".asf", "video/x-ms-asf"},
-        {".asx", "video/x-ms-asf"},
-        {".avi", "video/x-msvideo"},
-        {".bin", "application/octet-stream"},
-        {".cco", "application/x-cocoa"},
-        {".crt", "application/x-x509-ca-cert"},
-        {".css", "text/css"},
-        {".deb", "application/octet-stream"},
-        {".der", "application/x-x509-ca-cert"},
-        {".dll", "application/octet-stream"},
-        {".dmg", "application/octet-stream"},
-        {".ear", "application/java-archive"},
-        {".eot", "application/octet-stream"},
-        {".exe", "application/octet-stream"},
-        {".flv", "video/x-flv"},
-        {".gif", "image/gif"},
-        {".hqx", "application/mac-binhex40"},
-        {".htc", "text/x-component"},
-        {".htm", "text/html"},
-        {".html", "text/html"},
-        {".ico", "image/x-icon"},
-        {".img", "application/octet-stream"},
-        {".iso", "application/octet-stream"},
-        {".jar", "application/java-archive"},
-        {".jardiff", "application/x-java-archive-diff"},
-        {".jng", "image/x-jng"},
-        {".jnlp", "application/x-java-jnlp-file"},
-        {".jpeg", "image/jpeg"},
-        {".jpg", "image/jpeg"},
-        {".js", "application/x-javascript"},
-        {".mml", "text/mathml"},
-        {".mng", "video/x-mng"},
-        {".mov", "video/quicktime"},
-        {".mp3", "audio/mpeg"},
-        {".mpeg", "video/mpeg"},
-        {".mpg", "video/mpeg"},
-        {".msi", "application/octet-stream"},
-        {".msm", "application/octet-stream"},
-        {".msp", "application/octet-stream"},
-        {".pdb", "application/x-pilot"},
-        {".pdf", "application/pdf"},
-        {".pem", "application/x-x509-ca-cert"},
-        {".pl", "application/x-perl"},
-        {".pm", "application/x-perl"},
-        {".png", "image/png"},
-        {".prc", "application/x-pilot"},
-        {".ra", "audio/x-realaudio"},
-        {".rar", "application/x-rar-compressed"},
-        {".rpm", "application/x-redhat-package-manager"},
-        {".rss", "text/xml"},
-        {".run", "application/x-makeself"},
-        {".sea", "application/x-sea"},
-        {".shtml", "text/html"},
-        {".sit", "application/x-stuffit"},
-        {".swf", "application/x-shockwave-flash"},
-        {".tcl", "application/x-tcl"},
-        {".tk", "application/x-tcl"},
-        {".txt", "text/plain"},
-        {".war", "application/java-archive"},
-        {".wbmp", "image/vnd.wap.wbmp"},
-        {".wmv", "video/x-ms-wmv"},
-        {".xml", "text/xml"},
-        {".xpi", "application/x-xpinstall"},
-        {".zip", "application/zip"},
-        #endregion
-    };
+            private static readonly IDictionary<string, string> MimeTypeMappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+
+            #region extension to MIME type list
+                {".asf", "video/x-ms-asf"},
+                {".asx", "video/x-ms-asf"},
+                {".avi", "video/x-msvideo"},
+                {".bin", "application/octet-stream"},
+                {".cco", "application/x-cocoa"},
+                {".crt", "application/x-x509-ca-cert"},
+                {".css", "text/css"},
+                {".deb", "application/octet-stream"},
+                {".der", "application/x-x509-ca-cert"},
+                {".dll", "application/octet-stream"},
+                {".dmg", "application/octet-stream"},
+                {".ear", "application/java-archive"},
+                {".eot", "application/octet-stream"},
+                {".exe", "application/octet-stream"},
+                {".flv", "video/x-flv"},
+                {".gif", "image/gif"},
+                {".hqx", "application/mac-binhex40"},
+                {".htc", "text/x-component"},
+                {".htm", "text/html"},
+                {".html", "text/html"},
+                {".ico", "image/x-icon"},
+                {".img", "application/octet-stream"},
+                {".iso", "application/octet-stream"},
+                {".jar", "application/java-archive"},
+                {".jardiff", "application/x-java-archive-diff"},
+                {".jng", "image/x-jng"},
+                {".jnlp", "application/x-java-jnlp-file"},
+                {".jpeg", "image/jpeg"},
+                {".jpg", "image/jpeg"},
+                {".js", "application/x-javascript"},
+                {".mml", "text/mathml"},
+                {".mng", "video/x-mng"},
+                {".mov", "video/quicktime"},
+                {".mp3", "audio/mpeg"},
+                {".mpeg", "video/mpeg"},
+                {".mpg", "video/mpeg"},
+                {".msi", "application/octet-stream"},
+                {".msm", "application/octet-stream"},
+                {".msp", "application/octet-stream"},
+                {".pdb", "application/x-pilot"},
+                {".pdf", "application/pdf"},
+                {".pem", "application/x-x509-ca-cert"},
+                {".pl", "application/x-perl"},
+                {".pm", "application/x-perl"},
+                {".png", "image/png"},
+                {".prc", "application/x-pilot"},
+                {".ra", "audio/x-realaudio"},
+                {".rar", "application/x-rar-compressed"},
+                {".rpm", "application/x-redhat-package-manager"},
+                {".rss", "text/xml"},
+                {".run", "application/x-makeself"},
+                {".sea", "application/x-sea"},
+                {".shtml", "text/html"},
+                {".sit", "application/x-stuffit"},
+                {".swf", "application/x-shockwave-flash"},
+                {".tcl", "application/x-tcl"},
+                {".tk", "application/x-tcl"},
+                {".txt", "text/plain"},
+                {".war", "application/java-archive"},
+                {".wbmp", "image/vnd.wap.wbmp"},
+                {".wmv", "video/x-ms-wmv"},
+                {".xml", "text/xml"},
+                {".xpi", "application/x-xpinstall"},
+                {".zip", "application/zip"},
+            #endregion extension to MIME type list
+            };
+
             private Thread _serverThread;
-            Thread InputThread;
             private string _rootDirectory;
             private HttpListener _listener;
-            private int _port;
 
-            public int Port
-            {
-                get { return _port; }
-                private set { }
-            }
+            public int Port { get; private set; }
 
             /// <summary>
             /// Construct server with given port.
             /// </summary>
             /// <param name="path">Directory path to serve.</param>
             /// <param name="port">Port of the server.</param>
-            public SimpleHTTPServer(string path, int port)
+            public SimpleHttpServer(string path, int port)
             {
-                this.Initialize(path, port);
+                Initialize(path, port);
             }
 
             /// <summary>
             /// Construct server with suitable port.
             /// </summary>
             /// <param name="path">Directory path to serve.</param>
-            public SimpleHTTPServer(string path)
+            public SimpleHttpServer(string path)
             {
                 //get an empty port
-                TcpListener l = new TcpListener(IPAddress.Loopback, 0);
+                var tcpListener = new TcpListener(IPAddress.Loopback, 0);
 
-                l.Start();
-                int port = ((IPEndPoint)l.LocalEndpoint).Port;
-                l.Stop();
-                this.Initialize(path, port);
+                tcpListener.Start();
+                var port = ((IPEndPoint)tcpListener.LocalEndpoint).Port;
+                tcpListener.Stop();
+                Initialize(path, port);
             }
 
             /// <summary>
@@ -167,61 +152,67 @@ namespace DuoServer
             private void Listen()
             {
                 _listener = new HttpListener();
-                _listener.Prefixes.Add("http://*:" + _port.ToString() + "/");
+                _listener.Prefixes.Add($"http://*:{Port}/");
                 _listener.Start();
-                Console.WriteLine("Listener Started at " + DateTime.Now);
+
+                Console.WriteLine("Listener started at " + DateTime.Now);
                 while (true)
                 {
                     try
                     {
-                        HttpListenerContext context = _listener.GetContext();
+                        var context = _listener.GetContext();
                         Process(context);
                     }
-                    catch (Exception ex)
+                    catch (Exception exception)
                     {
-                        Console.WriteLine("Listener Error Catched: " + ex);
+                        Console.WriteLine("Listener Error: " + exception.Message);
+                        _listener.Stop();
                     }
                 }
             }
 
             private void Process(HttpListenerContext context)
             {
-                string filename = context.Request.Url.AbsolutePath;
-                Console.WriteLine("Requsted: " + filename);
-                filename = filename.Substring(1);
+                var fileUrl = context.Request.Url;
+                var filePath = fileUrl.AbsolutePath;
 
-                if (string.IsNullOrEmpty(filename))
+                Console.WriteLine("Requested: " + filePath);
+                filePath = filePath.Substring(1);
+
+                if (string.IsNullOrEmpty(filePath))
                 {
                     Console.WriteLine("Error: Filename.IsNullOrEmpty at " + DateTime.Now);
-                    foreach (string indexFile in _indexFiles)
+                    foreach (var indexFile in _indexFiles)
                     {
                         if (File.Exists(Path.Combine(_rootDirectory, indexFile)))
                         {
-                            filename = indexFile;
+                            filePath = indexFile;
                             break;
                         }
                     }
                 }
 
-                filename = Path.Combine(_rootDirectory, filename);
+                filePath = Path.Combine(_rootDirectory, filePath);
 
-                if (File.Exists(filename))
+                if (File.Exists(filePath))
                 {
                     try
                     {
-                        Stream input = new FileStream(filename, FileMode.Open);
+                        Stream input = new FileStream(filePath, FileMode.Open);
 
                         //Adding permanent http response headers
-                        string mime;
-                        context.Response.ContentType = _mimeTypeMappings.TryGetValue(Path.GetExtension(filename), out mime) ? mime : "application/octet-stream";
+                        context.Response.ContentType =
+                            MimeTypeMappings.TryGetValue(Path.GetExtension(filePath), out var mime)
+                                ? mime
+                                : "application/octet-stream";
                         context.Response.ContentLength64 = input.Length;
                         context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
-                        context.Response.AddHeader("Last-Modified", System.IO.File.GetLastWriteTime(filename).ToString("r"));
+                        context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filePath).ToString("r"));
 
-                        byte[] buffer = new byte[1024 * 16];
-                        int nbytes;
-                        while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
-                            context.Response.OutputStream.Write(buffer, 0, nbytes);
+                        var buffer = new byte[1024 * 16];
+                        int bytesCount;
+                        while ((bytesCount = input.Read(buffer, 0, buffer.Length)) > 0)
+                            context.Response.OutputStream.Write(buffer, 0, bytesCount);
                         input.Close();
 
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -232,8 +223,8 @@ namespace DuoServer
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         Console.WriteLine("Warning: Internal Server Error Code: " + ex + " " + DateTime.Now);
+                        Stop();
                     }
-
                 }
                 else
                 {
@@ -243,59 +234,59 @@ namespace DuoServer
 
                 context.Response.OutputStream.Close();
                 Console.WriteLine("Info: Stream.Closed\n");
-
+                Stop();
             }
 
             private void Initialize(string path, int port)
             {
-                Stopwatch sw = Stopwatch.StartNew();
-                ThreadStart childref = new ThreadStart(CallToChildThread);
+                var stopwatch = Stopwatch.StartNew();
+                ThreadStart childCallback = RunServer;
                 Console.WriteLine("Loading Duo Server Pre-Alpha 1.00\n");
-                this._rootDirectory = path;
-                this._port = port;
-                Console.WriteLine("Server Starting with parameters: " + _port + " " + _rootDirectory);
-                _serverThread = new Thread(this.Listen);
+                _rootDirectory = path;
+                Port = port;
+                Console.WriteLine($"Server Starting with parameters: {Port}  _rootDirectory");
+                _serverThread = new Thread(Listen);
                 _serverThread.Start();
-                Console.WriteLine("Server Thread Started Succsesfully");
-                Thread childThread = new Thread(childref);
+                Console.WriteLine("Server Thread Started Successfully");
+                var childThread = new Thread(childCallback);
                 childThread.Start();
-                void CallToChildThread()
+
+                void RunServer()
                 {
                     Console.WriteLine("Input Thread Started");
-                    while (1 == 1)
+                    while (true)
                     {
-                        string input = Console.ReadLine();
-                        if (input == "clear")
+                        var input = Console.ReadLine();
+                        switch (input)
                         {
-                            Console.Clear();
-                        }
-                        else if (input == "ip")
-                        {
-                            Console.WriteLine(Console.Title);
-                        }
-                        else if (input == "stop")
-                        {
-                            Environment.Exit(1);
-                        }
-                        else if (input == "test")
-                        {
-                            System.Diagnostics.Process.Start(@"http://" + Console.Title);
-                        }
-                        else if (input == "starttime")
-                        {
-                            Console.WriteLine(sw.Elapsed);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Not a Command. Check case sensitivity");
+                            case "clear":
+                                Console.Clear();
+                                break;
+
+                            case "ip":
+                                Console.WriteLine(Console.Title);
+                                break;
+
+                            case "stop":
+                                Stop();
+                                Environment.Exit(1);
+                                return;
+
+                            case "test":
+                                System.Diagnostics.Process.Start(@"http://" + Console.Title);
+                                break;
+
+                            case "starttime":
+                                Console.WriteLine(stopwatch.Elapsed);
+                                break;
+
+                            default:
+                                Console.WriteLine("Not a Command. Check case sensitivity");
+                                break;
                         }
                     }
                 }
             }
-
-
         }
-
     }
 }
-
